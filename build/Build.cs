@@ -25,18 +25,21 @@ class Build : NukeBuild
 
     public static int Main() => Execute<Build>(x => x.Push);
 
-    [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
-    readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
+    public Build() => Packer = new NuGetPacker(this);
 
-    [Solution] readonly Solution Solution;
-    [GitRepository] readonly GitRepository GitRepository;
-    [GitVersion] readonly GitVersion GitVersion;
+    [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
+    public readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
     [Parameter] readonly string FeedUser;
     [Parameter] readonly string FeedSecret;
 
-    AbsolutePath SourceDirectory => RootDirectory / "source";
-    AbsolutePath OutputDirectory => RootDirectory / "output";
+    [GitVersion] public readonly GitVersion GitVersion;
+    public AbsolutePath SourceDirectory => RootDirectory / "source";
+    public AbsolutePath OutputDirectory => RootDirectory / "output";
+
+    [GitRepository] readonly GitRepository GitRepository;
+    [Solution] readonly Solution Solution;
+    readonly NuGetPacker Packer;
 
     Target Clean => _ => _
         .Executes(() =>
@@ -67,15 +70,7 @@ class Build : NukeBuild
 
     Target Pack => _ => _
         .DependsOn(Compile)
-        .Executes(() =>
-        {
-            DotNetPack(s => s
-                .EnableNoBuild()
-                .SetConfiguration(Configuration)
-                .SetWorkingDirectory(SourceDirectory)
-                .SetOutputDirectory(OutputDirectory)
-                .SetVersion(GitVersion.NuGetVersionV2));
-        });
+        .Executes(() => DotNetPack(s => Packer.ConfigureForPreRelease(s)));
 
     Target Push => _ => _
         .DependsOn(Pack)
