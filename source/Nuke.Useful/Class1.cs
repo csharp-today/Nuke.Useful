@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ClassLibrary1
+namespace Nuke.Useful
 {
     public class Class1
     {
