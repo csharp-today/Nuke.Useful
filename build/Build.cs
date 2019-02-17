@@ -23,7 +23,7 @@ class Build : NukeBuild
     ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
     ///   - Microsoft VSCode           https://nuke.build/vscode
 
-    public static int Main () => Execute<Build>(x => x.Pack);
+    public static int Main() => Execute<Build>(x => x.Push);
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
@@ -31,6 +31,9 @@ class Build : NukeBuild
     [Solution] readonly Solution Solution;
     [GitRepository] readonly GitRepository GitRepository;
     [GitVersion] readonly GitVersion GitVersion;
+
+    [Parameter] readonly string FeedUser;
+    [Parameter] readonly string FeedSecret;
 
     AbsolutePath SourceDirectory => RootDirectory / "source";
     AbsolutePath OutputDirectory => RootDirectory / "output";
@@ -72,5 +75,21 @@ class Build : NukeBuild
                 .SetWorkingDirectory(SourceDirectory)
                 .SetOutputDirectory(OutputDirectory)
                 .SetVersion(GitVersion.NuGetVersionV2));
+        });
+
+    Target Push => _ => _
+        .DependsOn(Pack)
+        .Requires(() => FeedUser)
+        .Requires(() => FeedSecret)
+        .Executes(() =>
+        {
+            using var config = NuGetConfig.Create(OutputDirectory, FeedUser, FeedSecret);
+            var pkg = GlobFiles(OutputDirectory, "*.nupkg").Single();
+            DotNetNuGetPush(s => s
+                .SetTargetPath(pkg)
+                .SetWorkingDirectory(OutputDirectory)
+                .SetForceEnglishOutput(true)
+                .SetSource(config.FeedName)
+                .SetApiKey("NuGet requires the key but Azure DevOps ignores it"));
         });
 }
