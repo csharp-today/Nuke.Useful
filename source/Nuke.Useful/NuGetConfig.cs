@@ -1,8 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace Nuke.Useful
 {
-    public class NuGetConfig
+    public class NuGetConfig : IDisposable
     {
         private readonly string _file;
 
