@@ -8,12 +8,11 @@ class NuGetPacker
 
     public DotNetPackSettings ConfigureForPreRelease(DotNetPackSettings settings)
     {
-        settings.EnableNoBuild()
+        return settings
+            .EnableNoBuild()
             .SetConfiguration(Build.Configuration)
             .SetWorkingDirectory(Build.SourceDirectory)
             .SetOutputDirectory(Build.OutputDirectory)
             .SetVersion(Build.GitVersion.NuGetVersionV2);
-
-        return settings;
     }
 }
