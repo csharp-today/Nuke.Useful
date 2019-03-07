@@ -23,7 +23,7 @@ class Build : NukeBuild
     ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
     ///   - Microsoft VSCode           https://nuke.build/vscode
 
-    public static int Main() => Execute<Build>(x => x.Push);
+    public static int Main() => Execute<Build>(x => x.PushPreRelease);
 
     public Build() => Packer = new NuGetPacker(this);
 
@@ -68,17 +68,21 @@ class Build : NukeBuild
                 .EnableNoRestore());
         });
 
-    Target Pack => _ => _
+    Target PackPreRelease => _ => _
         .DependsOn(Compile)
         .Executes(() => DotNetPack(s => Packer.ConfigureForPreRelease(s)));
 
-    Target Push => _ => _
-        .DependsOn(Pack)
+    Target PackProduction => _ => _
+        .DependsOn(PackPreRelease)
+        .Executes(() => DotNetPack(s => Packer.ConfigureForProduction(s)));
+
+    Target PushPreRelease => _ => _
+        .DependsOn(PackProduction)
         .Requires(() => FeedUser)
         .Requires(() => FeedSecret)
         .Executes(() =>
         {
-            using var config = NuGetConfig.Create(OutputDirectory, FeedUser, FeedSecret);
+            using var config = NuGetConfig.Create(Packer.PreReleaseOutput, FeedUser, FeedSecret);
             var pkg = GlobFiles(OutputDirectory, "*.nupkg").Single();
             DotNetNuGetPush(s => s
                 .SetTargetPath(pkg)
