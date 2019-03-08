@@ -83,7 +83,7 @@ class Build : NukeBuild
         .Executes(() =>
         {
             using var config = NuGetConfig.Create(Packer.PreReleaseOutput, FeedUser, FeedSecret);
-            var pkg = GlobFiles(OutputDirectory, "*.nupkg").Single();
+            var pkg = GlobFiles(Packer.PreReleaseOutput, "*.nupkg").Single();
             DotNetNuGetPush(s => s
                 .SetTargetPath(pkg)
                 .SetWorkingDirectory(OutputDirectory)
