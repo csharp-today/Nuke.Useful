@@ -86,7 +86,7 @@ class Build : NukeBuild
             var pkg = GlobFiles(Packer.PreReleaseOutput, "*.nupkg").Single();
             DotNetNuGetPush(s => s
                 .SetTargetPath(pkg)
-                .SetWorkingDirectory(OutputDirectory)
+                .SetWorkingDirectory(Packer.PreReleaseOutput)
                 .SetForceEnglishOutput(true)
                 .SetSource(config.FeedName)
                 .SetApiKey("NuGet requires the key but Azure DevOps ignores it"));
