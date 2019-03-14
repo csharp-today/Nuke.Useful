@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using Nuke.Common;
 using Nuke.Common.Execution;
@@ -23,13 +24,14 @@ class Build : NukeBuild
     ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
     ///   - Microsoft VSCode           https://nuke.build/vscode
 
-    public static int Main() => Execute<Build>(x => x.PushPreRelease);
+    public static int Main() => Execute<Build>(x => x.SaveArtifacts);
 
     public Build() => Packer = new NuGetPacker(this);
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     public readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
+    [Parameter] readonly string ArtifactOutputDirectory = Environment.GetEnvironmentVariable("BUILD_ARTIFACTSTAGINGDIRECTORY");
     [Parameter] readonly string FeedUser;
     [Parameter] readonly string FeedSecret;
 
@@ -90,5 +92,15 @@ class Build : NukeBuild
                 .SetForceEnglishOutput(true)
                 .SetSource(config.FeedName)
                 .SetApiKey("NuGet requires the key but Azure DevOps ignores it"));
+        });
+
+    Target SaveArtifacts => _ => _
+        .DependsOn(PushPreRelease)
+        .Requires(() => ArtifactOutputDirectory)
+        .Executes(() =>
+        {
+            var path = Directory.GetFiles(Packer.ProductionOutput, "*.nupkg").Single();
+            var name = Path.GetFileName(path);
+            File.Copy(path, Path.Combine(ArtifactOutputDirectory, name));
         });
 }
