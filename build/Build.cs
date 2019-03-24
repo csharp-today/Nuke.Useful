@@ -9,6 +9,7 @@ using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Utilities.Collections;
+using Nuke.Useful;
 using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.PathConstruction;
@@ -84,7 +85,7 @@ class Build : NukeBuild
         .Requires(() => FeedSecret)
         .Executes(() =>
         {
-            using var config = NuGetConfig.Create(Packer.PreReleaseOutput, FeedUser, FeedSecret);
+            using var config = NuGetConfig.Create(Packer.PreReleaseOutput, "https://pkgs.dev.azure.com/mariuszbojkowski/_packaging/OpenSourceTest/nuget/v3/index.json", FeedUser, FeedSecret);
             var pkg = GlobFiles(Packer.PreReleaseOutput, "*.nupkg").Single();
             DotNetNuGetPush(s => s
                 .SetTargetPath(pkg)
