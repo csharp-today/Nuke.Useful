@@ -2,7 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    
     <PackageId>CSharpToday.Nuke.Useful</PackageId>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/csharp-today/Nuke.Useful.git</RepositoryUrl>
+
+    <Company>Mariusz Bojkowski</Company>
+    <Authors>Mariusz Bojkowski</Authors>
+    <Description>The library will contain useful classes for defining CI/CD pipelines using Nuke.Build</Description>
   </PropertyGroup>
 
 </Project>
