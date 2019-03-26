@@ -12,4 +12,8 @@
     <Description>The library will contain useful classes for defining CI/CD pipelines using Nuke.Build</Description>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Nuke.Common" Version="0.19.1" />
+  </ItemGroup>
+
 </Project>
