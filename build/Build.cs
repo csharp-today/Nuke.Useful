@@ -32,9 +32,9 @@ class Build : NukeBuild
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     public readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
-    [Parameter] readonly string ArtifactOutputDirectory = Environment.GetEnvironmentVariable("BUILD_ARTIFACTSTAGINGDIRECTORY");
-    [Parameter] readonly string FeedUser;
-    [Parameter] readonly string FeedSecret;
+    [AzureVariable("BUILD_ARTIFACTSTAGINGDIRECTORY")] readonly string ArtifactOutputDirectory;
+    [AzureVariable] readonly string FeedUser;
+    [AzureVariable] readonly string FeedSecret;
 
     [GitVersion] public readonly GitVersion GitVersion;
     public AbsolutePath SourceDirectory => RootDirectory / "source";
