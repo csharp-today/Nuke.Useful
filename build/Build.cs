@@ -98,10 +98,6 @@ class Build : NukeBuild
     Target SaveArtifacts => _ => _
         .DependsOn(PushPreRelease)
         .Requires(() => ArtifactOutputDirectory)
-        .Executes(() =>
-        {
-            var path = Directory.GetFiles(Packer.ProductionOutput, "*.nupkg").Single();
-            var name = Path.GetFileName(path);
-            File.Copy(path, Path.Combine(ArtifactOutputDirectory, name));
-        });
+        .Executes(() => ArtifactStorage.Create(ArtifactOutputDirectory)
+            .AddFile(Directory.GetFiles(Packer.ProductionOutput, "*.nupkg").Single()));
 }
