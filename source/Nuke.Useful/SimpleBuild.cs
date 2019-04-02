@@ -18,7 +18,7 @@ namespace Nuke.Useful
         public AbsolutePath SourceDirectory => RootDirectory / "source";
         public AbsolutePath OutputDirectory => RootDirectory / "output";
 
-        [Solution] readonly Solution Solution;
+        [Solution] protected readonly Solution Solution;
 
         Target Clean => _ => _
             .Executes(() =>
