@@ -20,18 +20,18 @@ namespace Nuke.Useful
 
         [Solution] protected readonly Solution Solution;
 
-        Target Clean => _ => _
+        protected Target Clean => _ => _
             .Executes(() =>
             {
                 SourceDirectory.GlobDirectories("**/bin", "**/obj").ForEach(DeleteDirectory);
                 EnsureCleanDirectory(OutputDirectory);
             });
 
-        Target Restore => _ => _
+        protected Target Restore => _ => _
             .DependsOn(Clean)
             .Executes(() => DotNetRestore(s => s.SetProjectFile(Solution)));
 
-        Target Compile => _ => _
+        protected Target Compile => _ => _
             .DependsOn(Restore)
             .Executes(() =>
             {
