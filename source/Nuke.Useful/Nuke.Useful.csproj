@@ -10,6 +10,7 @@
     <Company>Mariusz Bojkowski</Company>
     <Authors>Mariusz Bojkowski</Authors>
     <Description>The library will contain useful classes for defining CI/CD pipelines using Nuke.Build</Description>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

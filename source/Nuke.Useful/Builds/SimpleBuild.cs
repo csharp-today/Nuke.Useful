@@ -7,7 +7,7 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.ProjectModel;
 
-namespace Nuke.Useful
+namespace Nuke.Useful.Builds
 {
     public class SimpleBuild : NukeBuild
     {
