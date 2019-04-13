@@ -18,6 +18,8 @@ namespace Nuke.Useful.Builds
 
         protected readonly NuGetPacker Packer;
 
+        public AzureDevOpsLibraryBuild() => Packer = new NuGetPacker(this);
+
         protected Target PackPreRelease => _ => _
             .DependsOn(Compile)
             .Executes(() => DotNetPack(s => Packer.ConfigureForPreRelease(s)));
