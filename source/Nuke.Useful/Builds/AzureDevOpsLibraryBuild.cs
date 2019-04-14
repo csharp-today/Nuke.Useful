@@ -49,5 +49,8 @@ namespace Nuke.Useful.Builds
             .Requires(() => ArtifactOutputDirectory)
             .Executes(() => ArtifactStorage.Create(ArtifactOutputDirectory)
                 .AddFile(Directory.GetFiles(Packer.ProductionOutput, "*.nupkg").Single()));
+
+        protected Target BuildAzureDevOpsLibrary => _ => _
+            .DependsOn(SaveArtifacts);
     }
 }
