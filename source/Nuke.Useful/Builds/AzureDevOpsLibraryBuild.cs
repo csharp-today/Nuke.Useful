@@ -1,6 +1,7 @@
 ﻿using Nuke.Common;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
+using Nuke.Useful.Attributes;
 using System.IO;
 using System.Linq;
 using static Nuke.Common.IO.PathConstruction;

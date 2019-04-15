@@ -2,7 +2,7 @@
 using System;
 using System.Reflection;
 
-namespace Nuke.Useful
+namespace Nuke.Useful.Attributes
 {
     public class AzureVariableAttribute : ParameterAttribute
     {
