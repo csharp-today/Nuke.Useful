@@ -1,7 +1,6 @@
 ﻿using Nuke.Common;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
-using Nuke.Useful.Attributes;
 using System.IO;
 using System.Linq;
 using static Nuke.Common.IO.PathConstruction;
@@ -11,11 +10,10 @@ namespace Nuke.Useful.Builds
 {
     public abstract class AzureDevOpsLibraryBuild : SimpleBuild
     {
+        protected abstract string ArtifactOutputDirectory { get; }
+        protected abstract string FeedSecret { get; }
         protected abstract string FeedUrl { get; }
-
-        [AzureVariable("BUILD_ARTIFACTSTAGINGDIRECTORY")] readonly string ArtifactOutputDirectory;
-        [AzureVariable] readonly string FeedUser;
-        [AzureVariable] readonly string FeedSecret;
+        protected abstract string FeedUser { get; }
 
         protected readonly NuGetPacker Packer;
 
