@@ -13,7 +13,7 @@ namespace Nuke.Useful.Builds
     {
         [ArtifactDirectoryAzureVariable] protected abstract string ArtifactOutputDirectory { get; }
         [AzureVariable] protected abstract string FeedSecret { get; }
-        [Parameter] protected abstract string FeedUrl { get; }
+        [AzureVariable] protected abstract string FeedUrl { get; }
         [AzureVariable] protected abstract string FeedUser { get; }
 
         protected readonly NuGetPacker Packer;
