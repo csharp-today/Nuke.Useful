@@ -43,5 +43,12 @@ namespace Nuke.Useful.Builds
                     .SetInformationalVersion(GitVersion.InformationalVersion)
                     .EnableNoRestore());
             });
+
+        protected void CopyNukeTo(string destination)
+        {
+            ArtifactStorage.Create(destination)
+                .AddDirectory(RootDirectory / "build")
+                .AddFile(RootDirectory / "build.ps1");
+        }
     }
 }
