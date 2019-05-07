@@ -9,12 +9,12 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 namespace Nuke.Useful.Builds
 {
-    public abstract class AzureDevOpsLibraryBuild : SimpleBuild
+    public class AzureDevOpsLibraryBuild : SimpleBuild
     {
-        [ArtifactDirectoryAzureVariable] protected abstract string ArtifactOutputDirectory { get; }
-        [AzureVariable] protected abstract string FeedSecret { get; }
-        [AzureVariable] protected abstract string FeedUrl { get; }
-        [AzureVariable] protected abstract string FeedUser { get; }
+        [ArtifactDirectoryAzureVariable] protected string ArtifactOutputDirectory { get; }
+        [AzureVariable] protected string FeedSecret { get; }
+        [AzureVariable] protected string FeedUrl { get; }
+        [AzureVariable] protected string FeedUser { get; }
 
         protected readonly NuGetPacker Packer;
 
