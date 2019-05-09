@@ -12,3 +12,8 @@ pool:
 steps:
 - script: powershell .\build.ps1 --feed-user "$(FeedUser)" --feed-secret "$(FeedSecret)"
   displayName: Run Nuke
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
