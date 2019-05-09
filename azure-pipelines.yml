@@ -10,5 +10,5 @@ pool:
   name: Default
 
 steps:
-- script: powershell .\build.ps1
+- script: powershell .\build.ps1 -feed-user $(FeedUser)
   displayName: Run Nuke
