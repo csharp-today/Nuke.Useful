@@ -10,7 +10,10 @@ pool:
   name: Default
 
 steps:
-- script: powershell .\build.ps1 --feed-user "$(FeedUser)" --feed-secret "$(FeedSecret)"
+- script: powershell .\build.ps1
+  env:
+    FeedUser: $(FeedUser)
+    FeedSecret: $(FeedSecret)
   displayName: Run Nuke
 - task: PublishBuildArtifacts@1
   inputs:
