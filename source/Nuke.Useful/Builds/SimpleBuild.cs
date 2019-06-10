@@ -44,6 +44,13 @@ namespace Nuke.Useful.Builds
                     .EnableNoRestore());
             });
 
+        protected Target Test => _ => _
+            .DependsOn(Compile)
+            .Executes(() =>
+            {
+                DotNetTest(s => s.SetProjectFile(Solution));
+            });
+
         protected void CopyNukeTo(string destination)
         {
             ArtifactStorage.Create(destination)

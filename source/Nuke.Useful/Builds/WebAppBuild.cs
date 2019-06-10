@@ -17,7 +17,7 @@ namespace Nuke.Useful.Builds
 
         AbsolutePath PublishOutput;
         protected Target PublishWeb => _ => _
-            .DependsOn(Compile)
+            .DependsOn(Test)
             .Executes(() =>
             {
                 PublishOutput = OutputDirectory / PublishOutputDirectoryName;
