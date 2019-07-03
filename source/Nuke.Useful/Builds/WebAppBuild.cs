@@ -12,10 +12,9 @@ namespace Nuke.Useful.Builds
     public abstract class WebAppBuild : SimpleBuild
     {
         [ArtifactDirectoryAzureVariable] protected string ArtifactOutputDirectory { get; }
-
+        protected AbsolutePath PublishOutput { get; private set; }
         protected abstract string PublishOutputDirectoryName { get; }
 
-        AbsolutePath PublishOutput;
         protected Target PublishWeb => _ => _
             .DependsOn(Test)
             .Executes(() =>
@@ -32,14 +31,16 @@ namespace Nuke.Useful.Builds
         protected Target SaveWebArtifacts => _ => _
             .DependsOn(PublishWeb)
             .Requires(() => ArtifactOutputDirectory)
-            .Executes(() =>
-            {
-                if (PublishOutput is null)
-                {
-                    throw new ArgumentNullException(nameof(PublishOutput));
-                }
+            .Executes(() => SaveWebArtifactsManual(PublishOutput, ArtifactOutputDirectory));
 
-                ArtifactStorage.Create(ArtifactOutputDirectory).AddDirectory(PublishOutput);
-            });
+        protected void SaveWebArtifactsManual(AbsolutePath publishOutput, string artifactOutputDirectory)
+        {
+            if (publishOutput is null)
+            {
+                throw new ArgumentNullException(nameof(publishOutput));
+            }
+
+            ArtifactStorage.Create(artifactOutputDirectory).AddDirectory(publishOutput);
+        }
     }
 }
