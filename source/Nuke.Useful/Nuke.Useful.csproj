@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AzureUploader" Version="0.1.2-ci0018" />
+    <PackageReference Include="AzureUploader" Version="0.1.2-ci0021" />
     <PackageReference Include="Microsoft.Azure.Management.Fluent" Version="1.22.0" />
     <PackageReference Include="Nuke.Common" Version="0.19.2" />
   </ItemGroup>
