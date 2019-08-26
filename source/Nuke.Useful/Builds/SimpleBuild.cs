@@ -20,6 +20,8 @@ namespace Nuke.Useful.Builds
 
         [Solution] protected readonly Solution Solution;
 
+        protected string Runtime { get; private set; }
+
         protected Target Clean => _ => _
             .Executes(() =>
             {
@@ -29,19 +31,34 @@ namespace Nuke.Useful.Builds
 
         protected Target Restore => _ => _
             .DependsOn(Clean)
-            .Executes(() => DotNetRestore(s => s.SetProjectFile(Solution)));
+            .Executes(() => DotNetRestore(s =>
+            {
+                var settings = s.SetProjectFile(Solution);
+                if (!string.IsNullOrWhiteSpace(Runtime))
+                {
+                    settings = s.SetRuntime(Runtime);
+                }
+                return settings;
+            }));
 
         protected Target Compile => _ => _
             .DependsOn(Restore)
             .Executes(() =>
             {
-                DotNetBuild(s => s
-                    .SetProjectFile(Solution)
-                    .SetConfiguration(Configuration)
-                    .SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
-                    .SetFileVersion(GitVersion.GetNormalizedFileVersion())
-                    .SetInformationalVersion(GitVersion.InformationalVersion)
-                    .EnableNoRestore());
+                DotNetBuild(s =>
+                {
+                    var settings = s.SetProjectFile(Solution)
+                        .SetConfiguration(Configuration)
+                        .SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
+                        .SetFileVersion(GitVersion.GetNormalizedFileVersion())
+                        .SetInformationalVersion(GitVersion.InformationalVersion)
+                        .EnableNoRestore();
+                    if (!string.IsNullOrWhiteSpace(Runtime))
+                    {
+                        settings = settings.SetRuntime(Runtime);
+                    }
+                    return settings;
+                });
             });
 
         protected Target Test => _ => _
