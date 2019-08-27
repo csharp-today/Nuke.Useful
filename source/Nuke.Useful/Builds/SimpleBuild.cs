@@ -20,7 +20,7 @@ namespace Nuke.Useful.Builds
 
         [Solution] protected readonly Solution Solution;
 
-        protected string Runtime { get; private set; }
+        protected string Runtime { get; set; }
 
         protected Target Clean => _ => _
             .Executes(() =>
