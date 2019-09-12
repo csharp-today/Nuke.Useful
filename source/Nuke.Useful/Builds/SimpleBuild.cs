@@ -36,7 +36,7 @@ namespace Nuke.Useful.Builds
                 var settings = s.SetProjectFile(Solution);
                 if (!string.IsNullOrWhiteSpace(Runtime))
                 {
-                    settings = s.SetRuntime(Runtime);
+                    settings = settings.SetRuntime(Runtime);
                 }
                 return settings;
             }));
