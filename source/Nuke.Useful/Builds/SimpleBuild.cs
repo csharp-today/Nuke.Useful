@@ -65,7 +65,15 @@ namespace Nuke.Useful.Builds
             .DependsOn(Compile)
             .Executes(() =>
             {
-                DotNetTest(s => s.SetProjectFile(Solution));
+                DotNetTest(s =>
+                {
+                    var settings = s.SetProjectFile(Solution);
+                    if (!string.IsNullOrWhiteSpace(Runtime))
+                    {
+                        settings = settings.SetRuntime(Runtime);
+                    }
+                    return settings;
+                });
             });
 
         protected void CopyNukeTo(string destination)
