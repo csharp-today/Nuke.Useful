@@ -21,11 +21,18 @@ namespace Nuke.Useful.Builds
             {
                 PublishOutput = OutputDirectory / PublishOutputDirectoryName;
                 EnsureExistingDirectory(PublishOutput);
-                DotNetPublish(p => p
-                    .SetWorkingDirectory(SourceDirectory)
-                    .SetConfiguration(Configuration)
-                    .EnableNoBuild()
-                    .SetOutput(PublishOutput));
+                DotNetPublish(p =>
+                {
+                    var settings = p.SetWorkingDirectory(SourceDirectory)
+                        .SetConfiguration(Configuration)
+                        .EnableNoBuild()
+                        .SetOutput(PublishOutput);
+                    if (!string.IsNullOrWhiteSpace(Runtime))
+                    {
+                        settings = settings.SetRuntime(Runtime);
+                    }
+                    return settings;
+                });
             });
 
         protected Target SaveWebArtifacts => _ => _
