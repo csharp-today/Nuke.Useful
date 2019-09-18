@@ -12,7 +12,7 @@ namespace Nuke.Useful.Builds
         protected string HostingRootDirectory { get; set; } = @"D:\home\site\wwwroot";
 
         protected Target GenerateBlazorConfig => _ => _
-            .DependsOn(SaveWebArtifacts)
+            .DependsOn(BuildWebApp)
             .Executes(() =>
             {
                 var configPath = Path.Combine(ArtifactOutputDirectory, PublishOutputDirectoryName, $"{BlazorAssemblyName}.blazor.config");

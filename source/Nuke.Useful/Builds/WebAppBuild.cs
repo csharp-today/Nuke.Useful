@@ -40,6 +40,8 @@ namespace Nuke.Useful.Builds
             .Requires(() => ArtifactOutputDirectory)
             .Executes(() => SaveWebArtifactsManual(PublishOutput, ArtifactOutputDirectory));
 
+        protected Target BuildWebApp => _ => _.DependsOn(SaveWebArtifacts);
+
         protected void SaveWebArtifactsManual(AbsolutePath publishOutput, string artifactOutputDirectory)
         {
             if (publishOutput is null)
