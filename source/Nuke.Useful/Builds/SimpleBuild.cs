@@ -23,58 +23,19 @@ namespace Nuke.Useful.Builds
         protected string Runtime { get; set; }
 
         protected Target Clean => _ => _
-            .Executes(() =>
-            {
-                SourceDirectory.GlobDirectories("**/bin", "**/obj").ForEach(DeleteDirectory);
-                EnsureCleanDirectory(OutputDirectory);
-            });
+            .Executes(RunCleanTarget);
 
         protected Target Restore => _ => _
             .DependsOn(Clean)
-            .Executes(() => DotNetRestore(s =>
-            {
-                var settings = s.SetProjectFile(Solution);
-                if (!string.IsNullOrWhiteSpace(Runtime))
-                {
-                    settings = settings.SetRuntime(Runtime);
-                }
-                return settings;
-            }));
+            .Executes(RunRestoreTarget);
 
         protected Target Compile => _ => _
             .DependsOn(Restore)
-            .Executes(() =>
-            {
-                DotNetBuild(s =>
-                {
-                    var settings = s.SetProjectFile(Solution)
-                        .SetConfiguration(Configuration)
-                        .SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
-                        .SetFileVersion(GitVersion.GetNormalizedFileVersion())
-                        .SetInformationalVersion(GitVersion.InformationalVersion)
-                        .EnableNoRestore();
-                    if (!string.IsNullOrWhiteSpace(Runtime))
-                    {
-                        settings = settings.SetRuntime(Runtime);
-                    }
-                    return settings;
-                });
-            });
+            .Executes(RunCompileTarget);
 
         protected Target Test => _ => _
             .DependsOn(Compile)
-            .Executes(() =>
-            {
-                DotNetTest(s =>
-                {
-                    var settings = s.SetProjectFile(Solution);
-                    if (!string.IsNullOrWhiteSpace(Runtime))
-                    {
-                        settings = settings.SetRuntime(Runtime);
-                    }
-                    return settings;
-                });
-            });
+            .Executes(RunTestTarget);
 
         protected void CopyNukeTo(string destination)
         {
@@ -82,5 +43,46 @@ namespace Nuke.Useful.Builds
                 .AddDirectory(RootDirectory / "build")
                 .AddFile(RootDirectory / "build.ps1");
         }
+
+        protected void RunCleanTarget()
+        {
+            SourceDirectory.GlobDirectories("**/bin", "**/obj").ForEach(DeleteDirectory);
+            EnsureCleanDirectory(OutputDirectory);
+        }
+
+        protected void RunRestoreTarget() => DotNetRestore(s =>
+        {
+            var settings = s.SetProjectFile(Solution);
+            if (!string.IsNullOrWhiteSpace(Runtime))
+            {
+                settings = settings.SetRuntime(Runtime);
+            }
+            return settings;
+        });
+
+        protected void RunCompileTarget() => DotNetBuild(s =>
+        {
+            var settings = s.SetProjectFile(Solution)
+                .SetConfiguration(Configuration)
+                .SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
+                .SetFileVersion(GitVersion.GetNormalizedFileVersion())
+                .SetInformationalVersion(GitVersion.InformationalVersion)
+                .EnableNoRestore();
+            if (!string.IsNullOrWhiteSpace(Runtime))
+            {
+                settings = settings.SetRuntime(Runtime);
+            }
+            return settings;
+        });
+
+        protected void RunTestTarget() => DotNetTest(s =>
+        {
+            var settings = s.SetProjectFile(Solution);
+            if (!string.IsNullOrWhiteSpace(Runtime))
+            {
+                settings = settings.SetRuntime(Runtime);
+            }
+            return settings;
+        });
     }
 }
