@@ -17,39 +17,41 @@ namespace Nuke.Useful.Builds
 
         protected Target PublishWeb => _ => _
             .DependsOn(Test)
-            .Executes(() =>
-            {
-                PublishOutput = OutputDirectory / PublishOutputDirectoryName;
-                EnsureExistingDirectory(PublishOutput);
-                DotNetPublish(p =>
-                {
-                    var settings = p.SetWorkingDirectory(SourceDirectory)
-                        .SetConfiguration(Configuration)
-                        .EnableNoBuild()
-                        .SetOutput(PublishOutput);
-                    if (!string.IsNullOrWhiteSpace(Runtime))
-                    {
-                        settings = settings.SetRuntime(Runtime);
-                    }
-                    return settings;
-                });
-            });
+            .Executes(RunPublishWebTarget);
 
         protected Target SaveWebArtifacts => _ => _
             .DependsOn(PublishWeb)
             .Requires(() => ArtifactOutputDirectory)
-            .Executes(() => SaveWebArtifactsManual(PublishOutput, ArtifactOutputDirectory));
+            .Executes(RunSaveWebArtifactsTarget);
 
         protected Target BuildWebApp => _ => _.DependsOn(SaveWebArtifacts);
 
-        protected void SaveWebArtifactsManual(AbsolutePath publishOutput, string artifactOutputDirectory)
+        protected void RunPublishWebTarget()
         {
-            if (publishOutput is null)
+            PublishOutput = OutputDirectory / PublishOutputDirectoryName;
+            EnsureExistingDirectory(PublishOutput);
+            DotNetPublish(p =>
             {
-                throw new ArgumentNullException(nameof(publishOutput));
+                var settings = p.SetWorkingDirectory(SourceDirectory)
+                    .SetConfiguration(Configuration)
+                    .EnableNoBuild()
+                    .SetOutput(PublishOutput);
+                if (!string.IsNullOrWhiteSpace(Runtime))
+                {
+                    settings = settings.SetRuntime(Runtime);
+                }
+                return settings;
+            });
+        }
+
+        protected void RunSaveWebArtifactsTarget()
+        {
+            if (PublishOutput is null)
+            {
+                throw new ArgumentNullException(nameof(PublishOutput));
             }
 
-            ArtifactStorage.Create(artifactOutputDirectory).AddDirectory(publishOutput);
+            ArtifactStorage.Create(ArtifactOutputDirectory).AddDirectory(PublishOutput);
         }
     }
 }
