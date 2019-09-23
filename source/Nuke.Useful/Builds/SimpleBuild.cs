@@ -27,15 +27,15 @@ namespace Nuke.Useful.Builds
 
         protected Target Restore => _ => _
             .DependsOn(Clean)
-            .Executes(RunRestoreTarget);
+            .Executes(() => RunRestoreTarget());
 
         protected Target Compile => _ => _
             .DependsOn(Restore)
-            .Executes(RunCompileTarget);
+            .Executes(() => RunCompileTarget());
 
         protected Target Test => _ => _
             .DependsOn(Compile)
-            .Executes(RunTestTarget);
+            .Executes(() => RunTestTarget());
 
         protected void CopyNukeTo(string destination)
         {
@@ -50,9 +50,9 @@ namespace Nuke.Useful.Builds
             EnsureCleanDirectory(OutputDirectory);
         }
 
-        protected void RunRestoreTarget() => DotNetRestore(s =>
+        protected void RunRestoreTarget(Project project = null) => DotNetRestore(s =>
         {
-            var settings = s.SetProjectFile(Solution);
+            var settings = s.SetProjectFile((string)project ?? Solution);
             if (!string.IsNullOrWhiteSpace(Runtime))
             {
                 settings = settings.SetRuntime(Runtime);
@@ -60,9 +60,9 @@ namespace Nuke.Useful.Builds
             return settings;
         });
 
-        protected void RunCompileTarget() => DotNetBuild(s =>
+        protected void RunCompileTarget(Project project = null) => DotNetBuild(s =>
         {
-            var settings = s.SetProjectFile(Solution)
+            var settings = s.SetProjectFile((string)project ?? Solution)
                 .SetConfiguration(Configuration)
                 .SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
                 .SetFileVersion(GitVersion.GetNormalizedFileVersion())
@@ -75,9 +75,9 @@ namespace Nuke.Useful.Builds
             return settings;
         });
 
-        protected void RunTestTarget() => DotNetTest(s =>
+        protected void RunTestTarget(Project project = null) => DotNetTest(s =>
         {
-            var settings = s.SetProjectFile(Solution);
+            var settings = s.SetProjectFile((string)project ?? Solution);
             if (!string.IsNullOrWhiteSpace(Runtime))
             {
                 settings = settings.SetRuntime(Runtime);
