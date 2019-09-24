@@ -52,7 +52,7 @@ namespace Nuke.Useful.Builds
 
         protected void RunRestoreTarget(Project project = null) => DotNetRestore(s =>
         {
-            var settings = s.SetProjectFile((string)project ?? Solution);
+            var settings = s.SetProjectFile(project?.ToString() ?? Solution);
             if (!string.IsNullOrWhiteSpace(Runtime))
             {
                 settings = settings.SetRuntime(Runtime);
@@ -62,7 +62,7 @@ namespace Nuke.Useful.Builds
 
         protected void RunCompileTarget(Project project = null) => DotNetBuild(s =>
         {
-            var settings = s.SetProjectFile((string)project ?? Solution)
+            var settings = s.SetProjectFile(project?.ToString() ?? Solution)
                 .SetConfiguration(Configuration)
                 .SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
                 .SetFileVersion(GitVersion.GetNormalizedFileVersion())
@@ -77,7 +77,7 @@ namespace Nuke.Useful.Builds
 
         protected void RunTestTarget(Project project = null) => DotNetTest(s =>
         {
-            var settings = s.SetProjectFile((string)project ?? Solution);
+            var settings = s.SetProjectFile(project?.ToString() ?? Solution);
             if (!string.IsNullOrWhiteSpace(Runtime))
             {
                 settings = settings.SetRuntime(Runtime);
