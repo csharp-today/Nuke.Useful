@@ -1,4 +1,5 @@
-﻿using Nuke.Common;
+﻿using Microsoft.Build.Evaluation;
+using Nuke.Common;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Useful.Attributes;
@@ -17,7 +18,7 @@ namespace Nuke.Useful.Builds
 
         protected Target PublishWeb => _ => _
             .DependsOn(Test)
-            .Executes(RunPublishWebTarget);
+            .Executes(() => RunPublishWebTarget());
 
         protected Target SaveWebArtifacts => _ => _
             .DependsOn(PublishWeb)
@@ -26,13 +27,13 @@ namespace Nuke.Useful.Builds
 
         protected Target BuildWebApp => _ => _.DependsOn(SaveWebArtifacts);
 
-        protected void RunPublishWebTarget()
+        protected void RunPublishWebTarget(Project project = null)
         {
             PublishOutput = OutputDirectory / PublishOutputDirectoryName;
             EnsureExistingDirectory(PublishOutput);
             DotNetPublish(p =>
             {
-                var settings = p.SetWorkingDirectory(SourceDirectory)
+                var settings = p.SetWorkingDirectory(project?.DirectoryPath ?? SourceDirectory)
                     .SetConfiguration(Configuration)
                     .EnableNoBuild()
                     .SetOutput(PublishOutput);
