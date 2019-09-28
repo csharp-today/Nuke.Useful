@@ -1,5 +1,5 @@
-﻿using Microsoft.Build.Evaluation;
-using Nuke.Common;
+﻿using Nuke.Common;
+using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Useful.Attributes;
@@ -33,7 +33,7 @@ namespace Nuke.Useful.Builds
             EnsureExistingDirectory(PublishOutput);
             DotNetPublish(p =>
             {
-                var settings = p.SetWorkingDirectory(project?.DirectoryPath ?? SourceDirectory)
+                var settings = p.SetWorkingDirectory(project?.Directory ?? SourceDirectory)
                     .SetConfiguration(Configuration)
                     .EnableNoBuild()
                     .SetOutput(PublishOutput);
