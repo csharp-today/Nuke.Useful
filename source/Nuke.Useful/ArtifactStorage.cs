@@ -1,5 +1,6 @@
 ﻿using Nuke.Common.Utilities.Collections;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using static Nuke.Common.IO.PathConstruction;
 
@@ -27,6 +28,15 @@ namespace Nuke.Useful
         public ArtifactStorage AddFile(string filePath)
         {
             CopyFile(filePath, _directory);
+            return this;
+        }
+
+        public ArtifactStorage AddFiles(IEnumerable<string> files)
+        {
+            foreach (var filePath in files)
+            {
+                CopyFile(filePath, _directory);
+            }
             return this;
         }
 
