@@ -35,13 +35,16 @@ namespace Nuke.Useful.Builds
             .Executes(() =>
             {
                 using var config = NuGetConfig.Create(Packer.PreReleaseOutput, FeedUrl, FeedUser, FeedSecret);
-                var pkg = GlobFiles(Packer.PreReleaseOutput, "*.nupkg").Single();
-                DotNetNuGetPush(s => s
-                    .SetTargetPath(pkg)
-                    .SetWorkingDirectory(Packer.PreReleaseOutput)
-                    .SetForceEnglishOutput(true)
-                    .SetSource(config.FeedName)
-                    .SetApiKey("NuGet requires the key but Azure DevOps ignores it"));
+                var packages = GlobFiles(Packer.PreReleaseOutput, "*.nupkg");
+                foreach (var pkg in packages)
+                {
+                    DotNetNuGetPush(s => s
+                        .SetTargetPath(pkg)
+                        .SetWorkingDirectory(Packer.PreReleaseOutput)
+                        .SetForceEnglishOutput(true)
+                        .SetSource(config.FeedName)
+                        .SetApiKey("NuGet requires the key but Azure DevOps ignores it"));
+                }
             });
 
         protected Target SaveArtifacts => _ => _
