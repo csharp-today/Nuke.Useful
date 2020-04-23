@@ -60,7 +60,7 @@ namespace Nuke.Useful.Builds
             return settings;
         });
 
-        protected void RunCompileTarget(Project project = null) => DotNetBuild(s =>
+        protected void RunCompileTarget(Project project = null, string outputDirectory = null) => DotNetBuild(s =>
         {
             var settings = s.SetProjectFile(project?.ToString() ?? Solution)
                 .SetConfiguration(Configuration)
@@ -71,6 +71,10 @@ namespace Nuke.Useful.Builds
             if (!string.IsNullOrWhiteSpace(Runtime))
             {
                 settings = settings.SetRuntime(Runtime);
+            }
+            if (!string.IsNullOrWhiteSpace(outputDirectory))
+            {
+                settings = settings.SetOutputDirectory(outputDirectory);
             }
             return settings;
         });
