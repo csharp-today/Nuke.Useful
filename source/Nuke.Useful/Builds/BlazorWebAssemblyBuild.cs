@@ -9,7 +9,7 @@ namespace Nuke.Useful.Builds
     public abstract class BlazorWebAssemblyBuild : WebAppBuild
     {
         protected Project BlazorProject => Solution.GetProject(BlazorProjectName);
-        protected abstract string BlazorDistSubdirectory { get; }
+        protected virtual string BlazorDistSubdirectory => null;
         protected abstract string BlazorProjectName { get; }
 
         protected Target CompileBlazorProject => _ => _
@@ -28,6 +28,12 @@ namespace Nuke.Useful.Builds
             {
                 string parent = PublishOutput;
                 Log($"{nameof(BlazorDistSubdirectory)} = {BlazorDistSubdirectory}");
+                if (BlazorDistSubdirectory is null)
+                {
+                    Log($"Skipping the fix as the {nameof(BlazorDistSubdirectory)} is null");
+                    return;
+                }
+
                 var distDirectory = Path.Combine(parent, BlazorDistSubdirectory);
                 MoveDirectory(distDirectory);
                 Directory.Delete(distDirectory);
