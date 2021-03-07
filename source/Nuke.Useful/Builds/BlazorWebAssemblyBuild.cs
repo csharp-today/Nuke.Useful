@@ -8,33 +8,60 @@ namespace Nuke.Useful.Builds
 {
     public abstract class BlazorWebAssemblyBuild : WebAppBuild
     {
-        protected Project BlazorProject => Solution.GetProject(BlazorProjectName);
         protected virtual string BlazorDistSubdirectory => null;
-        protected abstract string BlazorProjectName { get; }
 
         protected Target CompileBlazorProject => _ => _
             .DependsOn(Restore)
-            .Executes(() => RunCompileTarget(BlazorProject));
+            .Executes(() =>
+            {
+                if (Project is null)
+                {
+                    throw new ApplicationException($"{nameof(Project)} can't be empty, please set {nameof(CustomSolutionName)}/{nameof(CustomProjectName)}/both");
+                }
+
+                RunCompileTarget();
+            });
 
         protected Target BuildBlazorWebApp => _ => _.DependsOn(CompileBlazorProject);
 
         protected Target PublishBlazorProject => _ => _
             .DependsOn(CompileBlazorProject)
-            .Executes(() => RunPublishWebTarget(BlazorProject));
+            .Executes(() => RunPublishWebTarget());
 
         protected Target FixPublishedBlazorProject => _ => _
             .DependsOn(PublishBlazorProject)
             .Executes(() =>
             {
                 string parent = PublishOutput;
-                Log($"{nameof(BlazorDistSubdirectory)} = {BlazorDistSubdirectory}");
-                if (BlazorDistSubdirectory is null)
+                var blazorDistSubdirectory = BlazorDistSubdirectory;
+                Log($"{nameof(BlazorDistSubdirectory)} = {blazorDistSubdirectory}");
+                if (blazorDistSubdirectory is null)
+                {
+                    Log($"{nameof(BlazorDistSubdirectory)} is null, detecting...");
+
+                    const string DistDirectory = "wwwroot";
+                    if (Directory.Exists(Path.Combine(parent, DistDirectory)))
+                    {
+                        blazorDistSubdirectory = DistDirectory;
+                    }
+                }
+
+                Log($"{nameof(BlazorDistSubdirectory)} = {blazorDistSubdirectory}");
+                if (blazorDistSubdirectory is null)
                 {
                     Log($"Skipping the fix as the {nameof(BlazorDistSubdirectory)} is null");
                     return;
                 }
 
-                var distDirectory = Path.Combine(parent, BlazorDistSubdirectory);
+                var webConfigPath = Path.Combine(parent, "web.config");
+                if (File.Exists(webConfigPath))
+                {
+                    Log($"Detected web.config file: {webConfigPath}");
+                    File.Delete(webConfigPath);
+                    Log("web.config removed");
+                }
+
+                var distDirectory = Path.Combine(parent, blazorDistSubdirectory);
                 MoveDirectory(distDirectory);
                 Directory.Delete(distDirectory);
 

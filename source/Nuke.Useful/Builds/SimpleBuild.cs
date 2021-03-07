@@ -9,20 +9,18 @@ using Nuke.Common.ProjectModel;
 
 namespace Nuke.Useful.Builds
 {
-    public class SimpleBuild : NukeBuild
+    public class SimpleBuild : SolutionBuild
     {
         [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
         public readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
         [GitVersion] public readonly GitVersion GitVersion;
-        public AbsolutePath SourceDirectory => RootDirectory / "source";
         public AbsolutePath OutputDirectory => RootDirectory / "output";
-
-        [Solution] protected readonly Solution Solution;
 
         protected string Runtime { get; set; }
 
         protected Target Clean => _ => _
+            .DependsOn(SwitchSolution)
             .Executes(RunCleanTarget);
 
         protected Target Restore => _ => _
@@ -52,6 +50,7 @@ namespace Nuke.Useful.Builds
 
         protected void RunRestoreTarget(Project project = null) => DotNetRestore(s =>
         {
+            project ??= Project;
             var settings = s.SetProjectFile(project?.ToString() ?? Solution);
             if (!string.IsNullOrWhiteSpace(Runtime))
             {
@@ -62,6 +61,7 @@ namespace Nuke.Useful.Builds
 
         protected void RunCompileTarget(Project project = null, string outputDirectory = null) => DotNetBuild(s =>
         {
+            project ??= Project;
             var settings = s.SetProjectFile(project?.ToString() ?? Solution)
                 .SetConfiguration(Configuration)
                 .SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())

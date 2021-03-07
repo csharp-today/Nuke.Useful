@@ -29,6 +29,7 @@ namespace Nuke.Useful.Builds
 
         protected void RunPublishWebTarget(Project project = null)
         {
+            project ??= Project;
             PublishOutput = OutputDirectory / PublishOutputDirectoryName;
             EnsureExistingDirectory(PublishOutput);
             DotNetPublish(p =>
