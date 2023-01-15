@@ -1,8 +1,8 @@
-﻿using Nuke.Common.Utilities.Collections;
+﻿using Nuke.Common.IO;
+using Nuke.Common.Utilities.Collections;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using static Nuke.Common.IO.PathConstruction;
 
 namespace Nuke.Useful
 {

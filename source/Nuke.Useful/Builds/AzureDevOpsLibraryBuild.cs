@@ -1,9 +1,7 @@
 ﻿using Nuke.Common;
-using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Useful.Attributes;
 using System.IO;
-using System.Linq;
 using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
@@ -18,18 +16,20 @@ namespace Nuke.Useful.Builds
 
         protected readonly NuGetPacker Packer;
 
-        public AzureDevOpsLibraryBuild() => Packer = new NuGetPacker(this);
+        protected override Target RunAllSteps => _ => _
+            .DependsOn(Step_9_SaveArtifacts)
+            .Executes(DoNothingAction);
 
-        protected Target PackPreRelease => _ => _
-            .DependsOn(Test)
+        protected Target Step_6_PackPreRelease => _ => _
+            .DependsOn(Step_5_RunTests)
             .Executes(() => DotNetPack(s => Packer.ConfigureForPreRelease(s)));
 
-        protected Target PackProduction => _ => _
-            .DependsOn(PackPreRelease)
+        protected Target Step_7_PackProduction => _ => _
+            .DependsOn(Step_6_PackPreRelease)
             .Executes(() => DotNetPack(s => Packer.ConfigureForProduction(s)));
 
-        protected Target PushPreRelease => _ => _
-            .DependsOn(PackProduction)
+        protected Target Step_8_PushPreRelease => _ => _
+            .DependsOn(Step_7_PackProduction)
             .Requires(() => FeedUser)
             .Requires(() => FeedSecret)
             .Executes(() =>
@@ -40,20 +40,18 @@ namespace Nuke.Useful.Builds
                 {
                     DotNetNuGetPush(s => s
                         .SetTargetPath(pkg)
-                        .SetWorkingDirectory(Packer.PreReleaseOutput)
-                        .SetForceEnglishOutput(true)
                         .SetSource(config.FeedName)
                         .SetApiKey("NuGet requires the key but Azure DevOps ignores it"));
                 }
             });
 
-        protected Target SaveArtifacts => _ => _
-            .DependsOn(PushPreRelease)
+        protected Target Step_9_SaveArtifacts => _ => _
+            .DependsOn(Step_8_PushPreRelease)
             .Requires(() => ArtifactOutputDirectory)
-            .Executes(() => ArtifactStorage.Create(ArtifactOutputDirectory)
+            .Executes(() => ArtifactStorage
+                .Create(ArtifactOutputDirectory)
                 .AddFiles(Directory.GetFiles(Packer.ProductionOutput, "*.nupkg")));
 
-        protected Target BuildAzureDevOpsLibrary => _ => _
-            .DependsOn(SaveArtifacts);
+        public AzureDevOpsLibraryBuild() => Packer = new NuGetPacker(this);
     }
 }

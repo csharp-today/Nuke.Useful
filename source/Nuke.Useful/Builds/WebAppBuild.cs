@@ -1,11 +1,10 @@
 ﻿using Nuke.Common;
+using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
-using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Useful.Attributes;
 using System;
 using static Nuke.Common.IO.FileSystemTasks;
-using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 namespace Nuke.Useful.Builds
@@ -16,16 +15,20 @@ namespace Nuke.Useful.Builds
         protected AbsolutePath PublishOutput { get; private set; }
         protected abstract string PublishOutputDirectoryName { get; }
 
-        protected Target PublishWeb => _ => _
-            .DependsOn(Test)
+        protected override Target RunAllSteps => _ => _
+            .DependsOn(Step_7_SaveWebArtifacts)
+            .Executes(DoNothingAction);
+
+        protected Target Step_6_PublishWeb => _ => _
+            .DependsOn(Step_5_RunTests)
             .Executes(() => RunPublishWebTarget());
 
-        protected Target SaveWebArtifacts => _ => _
-            .DependsOn(PublishWeb)
+        protected Target Step_7_SaveWebArtifacts => _ => _
+            .DependsOn(Step_6_PublishWeb)
             .Requires(() => ArtifactOutputDirectory)
             .Executes(RunSaveWebArtifactsTarget);
 
-        protected Target BuildWebApp => _ => _.DependsOn(SaveWebArtifacts);
+        protected Target BuildWebApp => _ => _.DependsOn(Step_7_SaveWebArtifacts);
 
         protected void RunPublishWebTarget(Project project = null)
         {
@@ -34,7 +37,8 @@ namespace Nuke.Useful.Builds
             EnsureExistingDirectory(PublishOutput);
             DotNetPublish(p =>
             {
-                var settings = p.SetWorkingDirectory(project?.Directory ?? SourceDirectory)
+                var settings = p
+                    .SetProject(project)
                     .SetConfiguration(Configuration)
                     .EnableNoBuild()
                     .SetOutput(PublishOutput);

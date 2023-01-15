@@ -6,6 +6,8 @@ using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.ProjectModel;
+using Nuke.Common.IO;
+using System;
 
 namespace Nuke.Useful.Builds
 {
@@ -15,24 +17,29 @@ namespace Nuke.Useful.Builds
         public readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
         [GitVersion] public readonly GitVersion GitVersion;
+
         public AbsolutePath OutputDirectory => RootDirectory / "output";
 
         protected string Runtime { get; set; }
 
-        protected Target Clean => _ => _
-            .DependsOn(SwitchSolution)
+        protected override Target RunAllSteps => _ => _
+            .DependsOn(Step_5_RunTests)
+            .Executes(DoNothingAction);
+
+        protected Target Step_2_Clean => _ => _
+            .DependsOn(Step_1_SwitchSolution)
             .Executes(RunCleanTarget);
 
-        protected Target Restore => _ => _
-            .DependsOn(Clean)
+        protected Target Step_3_Restore => _ => _
+            .DependsOn(Step_2_Clean)
             .Executes(() => RunRestoreTarget());
 
-        protected Target Compile => _ => _
-            .DependsOn(Restore)
+        protected Target Step_4_Compile => _ => _
+            .DependsOn(Step_3_Restore)
             .Executes(() => RunCompileTarget());
 
-        protected Target Test => _ => _
-            .DependsOn(Compile)
+        protected Target Step_5_RunTests => _ => _
+            .DependsOn(Step_4_Compile)
             .Executes(() => RunTestTarget());
 
         protected void CopyNukeTo(string destination)
@@ -61,21 +68,35 @@ namespace Nuke.Useful.Builds
 
         protected void RunCompileTarget(Project project = null, string outputDirectory = null) => DotNetBuild(s =>
         {
+            Console.WriteLine($"{nameof(Configuration)} = {Configuration}");
+
             project ??= Project;
             var settings = s.SetProjectFile(project?.ToString() ?? Solution)
                 .SetConfiguration(Configuration)
-                .SetAssemblyVersion(GitVersion.GetNormalizedAssemblyVersion())
-                .SetFileVersion(GitVersion.GetNormalizedFileVersion())
-                .SetInformationalVersion(GitVersion.InformationalVersion)
                 .EnableNoRestore();
+
+            if (GitVersion is null)
+            {
+                Console.WriteLine($"{nameof(GitVersion)} is not supported (null)");
+            }
+            else
+            {
+                settings = settings
+                    .SetAssemblyVersion(GitVersion.AssemblySemVer)
+                    .SetFileVersion(GitVersion.AssemblySemFileVer)
+                    .SetInformationalVersion(GitVersion.InformationalVersion);
+            }
+
             if (!string.IsNullOrWhiteSpace(Runtime))
             {
                 settings = settings.SetRuntime(Runtime);
             }
+
             if (!string.IsNullOrWhiteSpace(outputDirectory))
             {
                 settings = settings.SetOutputDirectory(outputDirectory);
             }
+
             return settings;
         });
 

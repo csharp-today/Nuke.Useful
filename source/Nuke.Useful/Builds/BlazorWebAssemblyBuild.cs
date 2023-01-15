@@ -1,5 +1,4 @@
 ﻿using Nuke.Common;
-using Nuke.Common.ProjectModel;
 using System;
 using System.IO;
 using System.Security.Cryptography;
@@ -10,8 +9,12 @@ namespace Nuke.Useful.Builds
     {
         protected virtual string BlazorDistSubdirectory => null;
 
-        protected Target CompileBlazorProject => _ => _
-            .DependsOn(Restore)
+        protected override Target RunAllSteps => _ => _
+            .DependsOn(Step_7_SaveBlazorArtifacts)
+            .Executes(DoNothingAction);
+
+        protected Target Step_4_CompileBlazorProject => _ => _
+            .DependsOn(Step_3_Restore)
             .Executes(() =>
             {
                 if (Project is null)
@@ -22,14 +25,12 @@ namespace Nuke.Useful.Builds
                 RunCompileTarget();
             });
 
-        protected Target BuildBlazorWebApp => _ => _.DependsOn(CompileBlazorProject);
-
-        protected Target PublishBlazorProject => _ => _
-            .DependsOn(CompileBlazorProject)
+        protected Target Step_5_PublishBlazorProject => _ => _
+            .DependsOn(Step_4_CompileBlazorProject)
             .Executes(() => RunPublishWebTarget());
 
-        protected Target FixPublishedBlazorProject => _ => _
-            .DependsOn(PublishBlazorProject)
+        protected Target Step_6_FixPublishedBlazorProject => _ => _
+            .DependsOn(Step_5_PublishBlazorProject)
             .Executes(() =>
             {
                 string parent = PublishOutput;
@@ -168,6 +169,9 @@ namespace Nuke.Useful.Builds
                 }
             });
 
-        protected Target PublishBlazorWebApp => _ => _.DependsOn(FixPublishedBlazorProject);
+        protected Target Step_7_SaveBlazorArtifacts => _ => _
+            .DependsOn(Step_6_FixPublishedBlazorProject)
+            .Requires(() => ArtifactOutputDirectory)
+            .Executes(RunSaveWebArtifactsTarget);
     }
 }

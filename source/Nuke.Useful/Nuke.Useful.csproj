@@ -1,22 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     
     <PackageId>CSharpToday.Nuke.Useful</PackageId>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/csharp-today/Nuke.Useful.git</RepositoryUrl>
 
-    <Company>Mariusz Bojkowski</Company>
+    <Company>Bojkowski.IT sp. zoo</Company>
     <Authors>Mariusz Bojkowski</Authors>
     <Description>The library contains useful classes for defining CI/CD pipelines using Nuke.Build</Description>
-    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AzureUploader" Version="0.1.3" />
     <PackageReference Include="Microsoft.Azure.Management.Fluent" Version="1.30.0" />
-    <PackageReference Include="Nuke.Common" Version="0.22.2" />
+    <PackageReference Include="Nuke.Common" Version="6.3.0" />
   </ItemGroup>
 
 </Project>
