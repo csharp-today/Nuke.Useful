@@ -10,6 +10,7 @@ pool:
   name: Default
 
 steps:
+- task: NuGetAuthenticate@1
 - script: powershell .\build.ps1
   env:
     FeedUser: $(FeedUser)
