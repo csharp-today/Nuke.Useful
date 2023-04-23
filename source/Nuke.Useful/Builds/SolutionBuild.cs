@@ -11,6 +11,8 @@ namespace Nuke.Useful.Builds
     {
         private readonly SolutionSwitcher _solutionSwitcher = new SolutionSwitcher();
 
+        public string ProjectPath => Project?.Path ?? string.Empty;
+
         protected string CustomProjectName { get; set; }
         protected string CustomSolutionName { get; set; }
 

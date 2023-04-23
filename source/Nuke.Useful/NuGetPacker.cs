@@ -1,6 +1,8 @@
 ﻿using Nuke.Common.IO;
 using Nuke.Common.Tools.DotNet;
+using Nuke.Common.Tools.GitVersion;
 using Nuke.Useful.Builds;
+using System;
 using System.Linq;
 
 namespace Nuke.Useful
@@ -14,16 +16,27 @@ namespace Nuke.Useful
 
         public NuGetPacker(SimpleBuild build) => Build = build;
 
-        public DotNetPackSettings ConfigureForPreRelease(DotNetPackSettings settings) => CommonConfiguration(settings)
-            .SetOutputDirectory(PreReleaseOutput)
-            .SetVersion(Build.GitVersion.NuGetVersionV2);
+        public DotNetPackSettings ConfigureForPreRelease(DotNetPackSettings settings) =>
+            CommonConfiguration(
+                settings,
+                Build.GitVersion.NuGetVersionV2)
+            .SetOutputDirectory(PreReleaseOutput);
 
-        public DotNetPackSettings ConfigureForProduction(DotNetPackSettings settings) => CommonConfiguration(settings)
-            .SetOutputDirectory(ProductionOutput)
-            .SetVersion(Build.GitVersion.NuGetVersionV2.Split('-').First());
+        public DotNetPackSettings ConfigureForProduction(DotNetPackSettings settings) =>
+            CommonConfiguration(
+                settings,
+                Build.GitVersion.NuGetVersionV2.Split('-').First())
+            .SetOutputDirectory(ProductionOutput);
 
-        private DotNetPackSettings CommonConfiguration(DotNetPackSettings settings) => settings
-            .EnableNoBuild()
-            .SetConfiguration(Build.Configuration);
+        private DotNetPackSettings CommonConfiguration(DotNetPackSettings settings, string version)
+        {
+            Console.WriteLine($"Version = {version}");
+            return settings
+                .EnableNoBuild()
+                .EnableNoRestore()
+                .SetConfiguration(Build.Configuration)
+                .SetProject(Build.ProjectPath)
+                .SetVersion(version);
+        }
     }
 }
