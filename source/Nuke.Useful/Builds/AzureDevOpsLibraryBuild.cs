@@ -34,14 +34,23 @@ namespace Nuke.Useful.Builds
             .Requires(() => FeedSecret)
             .Executes(() =>
             {
-                using var config = NuGetConfig.Create(Packer.PreReleaseOutput, FeedUrl, FeedUser, FeedSecret);
-                var packages = GlobFiles(Packer.PreReleaseOutput, "*.nupkg");
-                foreach (var pkg in packages)
+                var startingDirectory = Directory.GetCurrentDirectory();
+                try
                 {
-                    DotNetNuGetPush(s => s
-                        .SetTargetPath(pkg)
-                        .SetSource(config.FeedName)
-                        .SetApiKey("NuGet requires the key but Azure DevOps ignores it"));
+                    Directory.SetCurrentDirectory(Packer.PreReleaseOutput);
+                    using var config = NuGetConfig.Create(Packer.PreReleaseOutput, FeedUrl, FeedUser, FeedSecret);
+                    var packages = GlobFiles(Packer.PreReleaseOutput, "*.nupkg");
+                    foreach (var pkg in packages)
+                    {
+                        DotNetNuGetPush(s => s
+                            .SetTargetPath(pkg)
+                            .SetSource(config.FeedName)
+                            .SetApiKey("NuGet requires the key but Azure DevOps ignores it"));
+                    }
+                }
+                finally
+                {
+                    Directory.SetCurrentDirectory(startingDirectory);
                 }
             });
 
