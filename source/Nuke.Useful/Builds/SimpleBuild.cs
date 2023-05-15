@@ -20,6 +20,7 @@ namespace Nuke.Useful.Builds
 
         public AbsolutePath OutputDirectory => RootDirectory / "output";
 
+        protected string Platform { get; set; }
         protected string Runtime { get; set; }
 
         protected override Target RunAllSteps => _ => _
@@ -90,6 +91,11 @@ namespace Nuke.Useful.Builds
             if (!string.IsNullOrWhiteSpace(Runtime))
             {
                 settings = settings.SetRuntime(Runtime);
+            }
+
+            if (!string.IsNullOrWhiteSpace(Platform))
+            {
+                settings = settings.SetPlatform(Platform);
             }
 
             if (!string.IsNullOrWhiteSpace(outputDirectory))
