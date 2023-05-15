@@ -20,8 +20,8 @@ namespace Nuke.Useful.Builds
 
         public AbsolutePath OutputDirectory => RootDirectory / "output";
 
-        protected string Platform { get; set; }
-        protected string Runtime { get; set; }
+        public string Platform { get; set; }
+        public string Runtime { get; set; }
 
         protected override Target RunAllSteps => _ => _
             .DependsOn(Step_5_RunTests)
