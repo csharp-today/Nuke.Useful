@@ -23,6 +23,10 @@ namespace Nuke.Useful.Builds
         public string Platform { get; set; }
         public string Runtime { get; set; }
 
+        protected virtual string AssemblyVersion => GitVersion?.AssemblySemVer;
+        protected virtual string FileVersion => GitVersion?.AssemblySemFileVer;
+        protected virtual string InformationalVersion => GitVersion?.InformationalVersion;
+
         protected override Target RunAllSteps => _ => _
             .DependsOn(Step_5_RunTests)
             .Executes(DoNothingAction);
@@ -82,10 +86,13 @@ namespace Nuke.Useful.Builds
             }
             else
             {
+                Console.WriteLine($"{nameof(AssemblyVersion)} = '{AssemblyVersion}'");
+                Console.WriteLine($"{nameof(FileVersion)} = '{FileVersion}'");
+                Console.WriteLine($"{nameof(InformationalVersion)} = '{InformationalVersion}'");
                 settings = settings
-                    .SetAssemblyVersion(GitVersion.AssemblySemVer)
-                    .SetFileVersion(GitVersion.AssemblySemFileVer)
-                    .SetInformationalVersion(GitVersion.InformationalVersion);
+                    .SetAssemblyVersion(AssemblyVersion)
+                    .SetFileVersion(FileVersion)
+                    .SetInformationalVersion(InformationalVersion);
             }
 
             if (!string.IsNullOrWhiteSpace(Runtime))
