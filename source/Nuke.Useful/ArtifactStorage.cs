@@ -14,14 +14,14 @@ namespace Nuke.Useful
 
         public static ArtifactStorage Create(string outputDirectory) => new ArtifactStorage(outputDirectory);
 
-        public ArtifactStorage AddDirectory(AbsolutePath path)
+        public ArtifactStorage AddDirectory(AbsolutePath path, string overrideName = null)
         {
             if (!Directory.Exists(path.ToString()))
             {
                 throw new ArgumentException("The directory doesn't exist: " + path.ToString());
             }
 
-            CopyDirectory(path.ToString(), _directory);
+            CopyDirectory(path.ToString(), _directory, overrideName);
             return this;
         }
 
@@ -46,9 +46,9 @@ namespace Nuke.Useful
             return this;
         }
 
-        private void CopyDirectory(string source, string target)
+        private void CopyDirectory(string source, string target, string overrideName = null)
         {
-            var name = Path.GetFileName(source);
+            var name = overrideName ?? Path.GetFileName(source);
             var newDirectory = Path.Combine(target, name);
             Directory.CreateDirectory(newDirectory);
 
